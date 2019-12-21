@@ -52,8 +52,14 @@ export default {
 
 <style lang="less" scoped>
 .top-nav {
-  background-color: red;
-  .el-menu-item {
+  height: 100%;
+  width: 100%;
+  .el-menu  {
+  height: 100%;
+  width: 100%;
+
+  }
+.el-menu-item {
     text-align: center;
     font-size: 17px;
   }

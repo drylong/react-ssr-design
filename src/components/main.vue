@@ -1,6 +1,6 @@
 <template>
   <div class="ddiv">
-    <el-container class="sss">
+    <!-- <el-container class="sss">
       <el-container>
 
         <el-aside width="200px" style="background-color: rgb(238, 241, 246)" class="out-div">
@@ -67,7 +67,8 @@
       </el-container>
 
       <el-footer>fotter</el-footer>
-    </el-container>
+    </el-container> -->
+    <router-view></router-view>
   </div>
 </template>
 
@@ -87,50 +88,50 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.el-header,
-.el-footer {
-  background-color: #b3c0d1;
-  color: #333;
-  text-align: center;
-  line-height: 60px;
-}
+// .el-header,
+// .el-footer {
+//   background-color: #b3c0d1;
+//   color: #333;
+//   text-align: center;
+//   line-height: 60px;
+// }
 
-.el-aside {
-  background-color: #d3dce6;
-  color: #333;
-  text-align: center;
-  line-height: 200px;
-}
+// .el-aside {
+//   background-color: #d3dce6;
+//   color: #333;
+//   text-align: center;
+//   line-height: 200px;
+// }
 
-.el-main {
-  background-color: #e9eef3;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-}
+// .el-main {
+//   background-color: #e9eef3;
+//   color: #333;
+//   text-align: center;
+//   line-height: 160px;
+// }
 
-body > .el-container {
-  margin-bottom: 40px;
-}
-.sss {
-  height: 500px;
-}
-.el-container:nth-child(5) .el-aside,
-.el-container:nth-child(6) .el-aside {
-  line-height: 260px;
-}
+// body > .el-container {
+//   margin-bottom: 40px;
+// }
+// .sss {
+//   height: 500px;
+// }
+// .el-container:nth-child(5) .el-aside,
+// .el-container:nth-child(6) .el-aside {
+//   line-height: 260px;
+// }
 
-.el-container:nth-child(7) .el-aside {
-  line-height: 320px;
-}
-.out-div {
-    width: 200px;
-    height: 300px;
-    background: #CCCCCC;
-    -ms-overflow-style: none;
-    overflow-y: auto;
-}
-.out-div::-webkit-scrollbar {
-width: 0 !important
-}
+// .el-container:nth-child(7) .el-aside {
+//   line-height: 320px;
+// }
+// .out-div {
+//     width: 200px;
+//     height: 300px;
+//     background: #CCCCCC;
+//     -ms-overflow-style: none;
+//     overflow-y: auto;
+// }
+// .out-div::-webkit-scrollbar {
+// width: 0 !important
+// }
 </style>
