@@ -44,7 +44,7 @@ export default {
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 6, max: 15, message: "长度在 3 到 5 个字符", trigger: "change" }
+          { min: 6, max: 15, message: "长度在 6 到 15 个字符", trigger: "change" }
         ]
       },
       
@@ -59,7 +59,7 @@ export default {
           if (valid) {
             this.go();
           } else {
-            alert('subaaaaaaaaaaaaaaamit!');
+            alert('用户名或密码格式输入不正确!');
           }
         });
         }

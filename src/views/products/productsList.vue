@@ -1,6 +1,6 @@
 <template>
   <div>
-商品列表
+商品管理
   </div>
 </template>
 

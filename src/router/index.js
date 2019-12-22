@@ -13,7 +13,7 @@ const routers = new Router( {   // 创建实例
   routes: [
     {
       path: '/',
-      redirect:  '/home'       //根目录
+      redirect: '/home' //根目录
     },
     {
       path: '/login',

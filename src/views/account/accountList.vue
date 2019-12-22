@@ -50,14 +50,15 @@
           </template> :formatter="formatter"
         </el-table-column>
         <el-table-column prop="id" label="编号" width="100" sortable fixed="left"></el-table-column>
-        <el-table-column prop="name" label="账号" width="200"></el-table-column>
+        <el-table-column prop="username" label="账号" width="200"></el-table-column>
         <el-table-column prop="role" label="角色" width="200"></el-table-column>
-        <el-table-column prop="date" label="日期" width="300"></el-table-column>
-        <el-table-column prop="address" label="住址" width="400"></el-table-column>
+        <el-table-column prop="inputtime" label="日期" width="300"></el-table-column>
+        <el-table-column prop="password" label="密码" width="200"></el-table-column>
+        <el-table-column prop="email" label="邮箱" width="200"></el-table-column>
         <el-table-column label="操作" width="300">
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -99,7 +100,7 @@
 <el-dialog title="修改账户" :visible.sync="dialogFormVisible">
   <el-form :model="form">
     <el-form-item label="账户名称" :label-width="formLabelWidth">
-      <el-input v-model="form.name" autocomplete="off"></el-input>
+      <el-input v-model="form.username" autocomplete="off"></el-input>
     </el-form-item>
     <el-form-item label="用户权限" :label-width="formLabelWidth">
       <el-select v-model="form.role" placeholder="请选择权限">
@@ -109,8 +110,8 @@
     </el-form-item>
   </el-form>
   <div slot="footer" class="dialog-footer">
-    <el-button @click="dialogFormVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+    <el-button @click="qu">取 消</el-button>
+    <el-button type="primary" @click="que">确 定</el-button>
   </div>
 </el-dialog>
     
@@ -119,81 +120,25 @@
 </template>
 
 <script>
+// import axios from 'axios';
+import {accountList} from '@/api/account.js'
 export default {
   data() {
     return {
       currentPage4: 1,
       tableData: [
-        {
-          id: 1,
-          role: "超级管理员",
-          name: "王小虎1",
-          date: "2016-05-02",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          id: 2,
-          role: "普通员工",
-          date: "2016-05-04",
-          name: "王小虎2",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          id: 3,
-          role: "普通员工",
-          date: "2016-05-01",
-          name: "王小虎3",
-          address: "上海市普陀区金沙江路 1519 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: 4,
-          role: "普通员工",
-          date: "2016-05-03",
-          name: "王小虎4",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
+        {sss:1123}
       ],
       dialogFormVisible : false,
       form: {
-          name: '',
-          power:''
-        },
-        formLabelWidth: '100px'
+        username: '',
+        role:''
+      },
+      form2: {
+        name: '',
+        power:''
+      },
+      formLabelWidth: '100px'
     };
   },
   methods: {
@@ -216,22 +161,60 @@ export default {
           })
           .catch( () => {});
     },
-    handleEdit(index, row) {        //传入data数组中的索引  和  对象
+    // 编辑 按钮
+    edit(index, row) {        //传入data数组中的索引  和  对象
       this.dialogFormVisible = true;
-      console.log(index,row)
-      this.form = {
-          id: 1,
-          role: "超级管理员",
-          name: "王小虎1",
-          date: "2016-05-02",
-          address: "上海市普陀区金沙江路 1518 弄"
-        };
+      this.form = row;
+      this.form2.name = row.name;
+      this.form2.power = row.role;
     },
-    close(index,row) {
-      console.log(index,row)
+    // 删除 按钮
+    del(index,row) {
       this.dialogFormVisible = false;
-    }
-    
+      index = this.tableData.indexOf( this.tableData.filter( item => item.id === row.id)[0]);
+      this.tableData.splice(index,1);
+    },
+    // 对话框确定按钮
+    que() {
+      this.dialogFormVisible = false;
+    },
+    // 对话框取消按钮
+    qu() {
+      this.form.name = this.form2.name;
+      this.form.role = this.form2.power;
+      this.dialogFormVisible = false;
+    },
+    // close(index,row) {
+    //   this.dialogFormVisible = false;
+    // }
+  },
+  created() {
+    // 保留指针
+    const v = this;
+    accountList().then( (rsdata) => {
+      v.tableData = rsdata.data.map( (item) => {
+        if(item.role ===1 ) {
+          item.role = '超级管理员'
+        } else {
+          item.role = '普通员工'
+        }
+        return item;
+      })
+    }) 
+    //普通引入发axios
+    // axios.get('http://127.0.0.1:666/account/list').then((response) => {
+    // this.tableData = response.data.map( (item) => {
+    //   if(item.role === 1) {
+    //      item.role = '超级管理员';
+    //      return item;
+    //   } else {
+    //     item.role = '普通员工';
+    //     return item;
+    //   }
+    // });
+    // console.log(this.tableData);
+    // response
+  // })
   }
 };
 </script>

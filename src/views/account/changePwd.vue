@@ -10,13 +10,13 @@
           data ： 动态数据
           stripe ： 是否开启各行换色
       -->
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="tableData" stripe style="width: 100%" :default-sort="{prop: 'id', order: 'descending'}">
         <!-- 
             prop ： 对应列内容的字段名(遍历对象的属性名称)
             label: 显示的标题
             width: 对应列的宽度
         -->
-        <el-table-column prop="id" label="编号"></el-table-column>
+        <el-table-column prop="id" label="编号" sortable fixed="left"></el-table-column>
         <el-table-column prop="name" label="账号"></el-table-column>
         <el-table-column prop="role" label="角色"></el-table-column>
         <el-table-column prop="date" label="日期"></el-table-column>
@@ -50,17 +50,17 @@
     -->
     <el-dialog title="账号修改" :visible.sync="dialogFormVisible">
       <el-form
-        :model="addAcountForm"
+        
         status-icon
         :rules="rules"
         ref="addAcountForm"
         label-width="100px"
         class="demo-ruleForm"
       >
-        <el-form-item label="账号" prop="username">
+        <el-form-item label="账号" >
           <el-input v-model="addAcountForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户角色" prop="role">
+        <el-form-item label="用户角色" >
           <el-select v-model="addAcountForm.role" placeholder="请选择">
             <!-- 
               label ： 下拉框显示的值
@@ -72,8 +72,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="make">确 定</el-button>
+        <el-button @click="qu">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -85,7 +85,11 @@ export default {
     return {
       dialogFormVisible: false, // 对话框默认不可见
       addAcountForm: {
-        username: "",
+        name: "",
+        role: ""
+      },
+      aa: {
+        name: "",
         role: ""
       },
       rules: {},
@@ -123,12 +127,28 @@ export default {
     };
   },
   methods: {
+    // 编辑 按钮
     handleEdit(i, row) {
       // 修改对话框的显示状态为true，即显示对话框
       this.dialogFormVisible = true;
-
-      // 点击编辑按钮时，把当行前的数据，更新到form对于的model对象上
+      Object.freeze(row);
       this.addAcountForm = row;
+      this.aa.name = row.name;
+      // 点击编辑按钮时，把当行前的数据，更新到form对于的model对象上
+    },
+    make() {
+      this.dialogFormVisible = false;
+    },
+    qu() {
+      this.addAcountForm.name = this.aa.name;
+      this.dialogFormVisible = false;
+    },
+    // 删除 按钮
+    handleDelete(row) {
+      // 筛选id符合的对象
+      let index = this.tableData.indexOf( this.tableData.filter( (item) => item.id === row.id
+      )[0]);
+      this.tableData.splice(index,1);
     }
   }
 };

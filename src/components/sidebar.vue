@@ -7,13 +7,14 @@
       unique-opened
       :default-active="$route.path"
       class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose"
+     
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b"
       router
     >
+     <!-- @open="handleOpen" -->
+      <!-- @close="handleClose" -->
       <el-menu-item>红旗超市管理系统</el-menu-item>
       <!-- <el-submenu index="1">
         <template slot="title">
@@ -94,8 +95,8 @@ export default {
           cls: "el-icon-s-goods",
           title: "商品管理",
           children: [
-            { index: "/home/productsList", name: "商品列表" },
-            { index: "/home/productsAdd", name: "添加商品" }
+            { index: "/home/productsList", name: "商品管理" },
+            { index: "/home/productsAdd", name: "添加管理" }
           ]
         },
         {
@@ -133,12 +134,12 @@ export default {
     };
   },
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath,this.$router.path);
-    }
+    // handleOpen(key, keyPath) {
+    //   // console.log(key, keyPath);
+    // },
+    // handleClose(key, keyPath) {
+    //   // console.log(key, keyPath,this.$router.path);
+    // }
   }
 };
 </script>
