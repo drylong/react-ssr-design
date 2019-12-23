@@ -35,7 +35,7 @@
                 <span>{{ props.row.id }}</span>
               </el-form-item>
               <el-form-item label="账号">
-                <span>{{ props.row.name }}</span>
+                <span>{{ props.row.username }}</span>
               </el-form-item>
               <el-form-item label="角色">
                 <span>{{ props.row.role }}</span>
@@ -47,11 +47,17 @@
                 <span>{{ props.row.address }}</span>
               </el-form-item>
             </el-form>
-          </template> :formatter="formatter"
+          </template>
         </el-table-column>
         <el-table-column prop="id" label="编号" width="100" sortable fixed="left"></el-table-column>
         <el-table-column prop="username" label="账号" width="200"></el-table-column>
-        <el-table-column prop="role" label="角色" width="200"></el-table-column>
+        <el-table-column label="角色" width="200">
+          <template slot-scope="scope"> 
+            <el-table-column>
+              {{scope.row.role}}
+            </el-table-column>
+          </template>
+        </el-table-column>
         <el-table-column prop="inputtime" label="日期" width="300"></el-table-column>
         <el-table-column prop="password" label="密码" width="200"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="200"></el-table-column>
@@ -121,13 +127,12 @@
 
 <script>
 // import axios from 'axios';
-import {accountList} from '@/api/account.js'
+import {accountList} from '@/api/account.js';
 export default {
   data() {
     return {
       currentPage4: 1,
       tableData: [
-        {sss:1123}
       ],
       dialogFormVisible : false,
       form: {
@@ -192,15 +197,16 @@ export default {
     // 保留指针
     const v = this;
     accountList().then( (rsdata) => {
-      v.tableData = rsdata.data.map( (item) => {
-        if(item.role ===1 ) {
-          item.role = '超级管理员'
-        } else {
-          item.role = '普通员工'
-        }
-        return item;
-      })
-    }) 
+      v.tableData = rsdata.data;
+      // v.tableData.forEach( (item) => {
+      //     if(item.role ===1 ) {
+      //       item.role = '超级管理员';
+      //       console.log(item);
+      //     } else {
+      //       item.role = '普通员工'
+      //     }
+      //   });
+    });
     //普通引入发axios
     // axios.get('http://127.0.0.1:666/account/list').then((response) => {
     // this.tableData = response.data.map( (item) => {
@@ -215,7 +221,7 @@ export default {
     // console.log(this.tableData);
     // response
   // })
-  }
+  },
 };
 </script>
 
