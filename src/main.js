@@ -6,7 +6,7 @@ import routers from '@/router/index.js'
 import Element from 'element-ui';
 // 引入样式 、或者自定义的主题
 import 'element-ui/lib/theme-chalk/index.css';
-// import '@/theme/element/index.css';
+import '@/theme/element/index.css';
 // 引入重置样式
 import 'normalize.css';
 // 引入全局样式

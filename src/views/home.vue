@@ -20,7 +20,7 @@
         </el-container>
       </el-container>
       <!-- 底部 -->
-      <el-footer>
+      <el-footer style="height:30px;">
         <homeFooter></homeFooter>
       </el-footer>
     </el-container>
@@ -66,7 +66,7 @@ export default {
     background-color: #b3c0d1;
     color: #333;
     text-align: center;
-    line-height: 60px;
+    line-height: 30px;
   }
 
 

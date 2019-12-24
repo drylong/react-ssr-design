@@ -11,7 +11,7 @@
 
 <style lang="less" scoped>
   .footer {
-    height: 60px;
     background-color: red;
+    height: 30px;
   }
 </style>

@@ -1,250 +1,271 @@
 <template>
   <div class="account-list">
-      <!-- 表格 -->
+    <!-- 卡片 -->
+    <el-card class="box-card" shadow="hover">
       <div slot="header" class="clearfix">
-        <h3>账号列表</h3>
+        <span>
+          <i class="el-icon-s-custom"></i>账户列表
+        </span>
       </div>
-      <!-- 内容 -->
-      <!-- el-table 属性
-          :data ： 接受一个 对象数组 在子元素行el-table-column 中会遍历数组 通过prop来选择遍历的属性 lebel来定义表头
-          stripe ： 是否开启斑马色
-          border ： 是否加上竖直方向上边框
-          width ： 定义列宽度
-          :row-class-name="方法名"  给属性的某一行添加class 表示状态 样式加在全局css里
-          height="数字"  可以固定表头
-          max-height="数字"  超出高度时出现滚动条 并固定表头
-         :default-sort = "{prop: 'date', order: 'descending'}" ： 排序
-      -->
-      <el-table
-        :data="tableData"
-        stripe
-        border
-        style="width: 100%"
-        height="400px"
-        :default-sort="{prop: 'id', order: 'descending'}"
-      >
-        <!-- el-table-column 属性
-            prop ： 对应列内容的字段名(遍历对象的属性名称)
-            label: 显示的标题
-            fixed: 固定列  boolean/left/right  开关 左边 右边
-        -->
-        <el-table-column type="expand">
-          <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="编号">
-                <span>{{ props.row.id }}</span>
-              </el-form-item>
-              <el-form-item label="账号">
-                <span>{{ props.row.username }}</span>
-              </el-form-item>
-              <el-form-item label="角色">
-                <span>{{ props.row.role }}</span>
-              </el-form-item>
-              <el-form-item label="日期">
-                <span>{{ props.row.date }}</span>
-              </el-form-item>
-              <el-form-item label="住址">
-                <span>{{ props.row.address }}</span>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column prop="id" label="编号" width="100" sortable fixed="left"></el-table-column>
-        <el-table-column prop="username" label="账号" width="200"></el-table-column>
-        <el-table-column label="角色" width="200">
-          <template slot-scope="scope"> 
-            <el-table-column>
-              {{scope.row.role}}
-            </el-table-column>
-          </template>
-        </el-table-column>
-        <el-table-column prop="inputtime" label="日期" width="300"></el-table-column>
-        <el-table-column prop="password" label="密码" width="200"></el-table-column>
-        <el-table-column prop="email" label="邮箱" width="200"></el-table-column>
-        <el-table-column label="操作" width="300">
+      <!-- 搜索表单 -->
+      <el-form :inline="true" :model="searchModel" class="demo-form-inline">
+        <el-form-item label="搜索用户名：">
+          <el-input v-model="searchModel.username" placeholder="用户名"></el-input>
+        </el-form-item>
+        <el-form-item label="搜索权限：">
+          <el-select v-model="searchModel.role" placeholder="用户权限">
+            <el-option label="超级管理员" :value="1"></el-option>
+            <el-option label="普通员工" :value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSearch" class="search-btn" >查询  <i class="el-icon-search"></i></el-button>
+          <el-button type="primary" @click="onReset" class="search-btn" >重置  <i class="el-icon-refresh"></i></el-button>
+        </el-form-item>
+      </el-form>
+      <!-- 表格 -->
+      <el-table :data="tableData" height="450">
+        <el-table-column prop="id" label="编号"></el-table-column>
+        <el-table-column prop="username" label="用户名"></el-table-column>
+        <el-table-column label="权限" :formatter="formatterRole"></el-table-column>
+        <el-table-column prop="inputtime" label="录入日期"></el-table-column>
+        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
+            <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDelete( scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <!-- 分页  -->
-      <!-- 
-          layout            组件布局，子组件名用逗号分隔
-              total ：    表示总条目数，
-              size ：     用于设置每页显示的页码数量。
-              prev ：     前一页
-              pager ：    表示页码列表
-              next ：     后一页
-              jumper ：   表示跳页元素，
-          size-change       数字改变是函数
-          current-change    数字改变是函数
-          :current-page	    当前显示在第几页 可以加 .sync
-          :page-sizes	      接受一个整型数组，数组元素为展示的选择每页显示个数的选项
-          :page-size       每页显示条目个数，支持 .sync 修饰符(值必须属于page-sizes数组)
-          
-          :total          总条目数         
-      -->
-      <div class="pages">
-        <el-pagination
+      <!-- 分页 -->
+      <el-pagination
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+        :current-page="pages.currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size='pages.pageSize'
         layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage4"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
-        :total="400"
-      ></el-pagination>
-      </div>
-
-    <!-- 编辑对话框 -->
-    <!-- 
-        visible ： 是否默认可见
-    -->
-
-
-<el-dialog title="修改账户" :visible.sync="dialogFormVisible">
-  <el-form :model="form">
-    <el-form-item label="账户名称" :label-width="formLabelWidth">
-      <el-input v-model="form.username" autocomplete="off"></el-input>
-    </el-form-item>
-    <el-form-item label="用户权限" :label-width="formLabelWidth">
-      <el-select v-model="form.role" placeholder="请选择权限">
-        <el-option label="超级管理员" value="超级管理员"></el-option>
-        <el-option label="普通员工" value="普通员工"></el-option>
-      </el-select>
-    </el-form-item>
-  </el-form>
-  <div slot="footer" class="dialog-footer">
-    <el-button @click="qu">取 消</el-button>
-    <el-button type="primary" @click="que">确 定</el-button>
-  </div>
-</el-dialog>
-    
-    
+        :total="pages.total" 
+        class='fen-page'>
+      </el-pagination>
+      <!-- 对话框 修改 -->
+      <el-dialog title="修改账户" :visible.sync="dialogFormVisible">
+        <el-form :model="form">
+          <el-form-item label="用户名：" :label-width="formLabelWidth"  >
+            <el-input v-model="form.username" autocomplete="off" class="el-dialog-input"></el-input>
+          </el-form-item>
+          <el-form-item label="权限：" :label-width="formLabelWidth">
+            <el-select v-model="form.role" placeholder="请选择权限" class="el-dialog-input">
+              <el-option label="超级管理员" :value="1"></el-option>
+              <el-option label="普通员工" :value="2"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="goEdit">确 定</el-button>
+        </div>
+      </el-dialog>
+    </el-card>
   </div>
 </template>
 
 <script>
-// import axios from 'axios';
-import {accountList} from '@/api/account.js';
+import { accountList, accountEdit, accountDel, accountSearch, accountPage } from "@/api/account.js";
 export default {
   data() {
     return {
-      currentPage4: 1,
-      tableData: [
-      ],
-      dialogFormVisible : false,
-      form: {
-        username: '',
+      // 搜索表单数据
+      search:{
+        username:'',
         role:''
       },
-      form2: {
-        name: '',
-        power:''
+      searchModel:{
+        username:'',
+        role:''
       },
-      formLabelWidth: '100px'
+      // 表格数据
+      tableData: [
+        {
+          id: 1,
+          role: "超级管理员",
+          username: "王小虎1",
+          inputtime: "2016-05-02",
+          email: "上海市普陀区金沙江路 1518 弄"
+        },
+        {
+          id: 2,
+          role: "普通员工",
+          inputtime: "2016-05-04",
+          username: "王小虎2",
+          email: "上海市普陀区金沙江路 1517 弄"
+        }
+      ],
+      // 对话框数据
+      form: {
+        username: "",
+        role: "",
+        id: ""
+      },
+      //  分页数据
+      pages: {
+        total: 5,
+        currentPage: 1,
+        pageSize: 5,
+        username: '',
+        role: '',
+      },
+      // 弹出框数据
+      dialogFormVisible: false,
+      formLabelWidth: "100px"
     };
   },
   methods: {
-    // 排序里的函数 没搞懂
-    // formatter(row, column) {
-    //     // return {row.address, column};
-    //   },
-    // 分页 页码改变
-    handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+    // 获取列表函数
+    getList() {
+      const v = this;
+      accountList().then(rsdata => {
+        v.tableData = rsdata;
+      });
     },
-    // 对话框关闭函数
-    handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then( () => {
-            done();
-          })
-          .catch( () => {});
+    //分页发请求函数
+    getPage() {
+      const v = this;
+      accountPage(v.pages).then( rsdata => {
+        v.pages.total = rsdata.total;
+        v.tableData = rsdata.data;
+      });
     },
-    // 编辑 按钮
-    edit(index, row) {        //传入data数组中的索引  和  对象
+    // 搜索按钮
+    onSearch() {
+      const v = this;
+      v.search = Object.assign({},this.searchModel);
+      accountSearch(v.search).then(rsdata => {
+        // v.tableData = Object.assign( {} , rsdata);
+        // 控制分页算法
+        console.log(v.pages.pageSize,v.pages.currentPage);
+         v.pages.currentPage = 1;  //当前页 
+        let s = v.pages.pageSize ;    //每页个数
+        v.tableData = rsdata.slice(0,s);
+        v.pages.total = rsdata.length;
+      })
+    },
+    // 重置 按钮
+    onReset() {
+      console.log(this.pages.pageSize,this.pages.currentPage);
+      this.pages.currentPage = 1 ;
+      this.search = {username:'' ,role: ''};
+      this.searchModel = {username:'' ,role: ''};
+    },
+    // 修改权限显示
+    formatterRole(row) {
+      if (row.role === 1) {
+        return "超级管理员";
+      } else {
+        return "普通员工";
+      }
+    },
+    // 编辑按钮函数
+    handleEdit(index, row) {
       this.dialogFormVisible = true;
-      this.form = row;
-      this.form2.name = row.name;
-      this.form2.power = row.role;
+      // 数据回填 注意
+      this.form = Object.assign({}, row); //浅拷贝
+      // this.form.username = row.username;
+      // this.form.role = row.role;
+      // this.form = row;      错误
+      // 发送请求
     },
-    // 删除 按钮
-    del(index,row) {
-      this.dialogFormVisible = false;
-      index = this.tableData.indexOf( this.tableData.filter( item => item.id === row.id)[0]);
-      this.tableData.splice(index,1);
+    //页内数量大小改变 函数
+    sizeChange(val) {
+      const v= this;
+      v.pages.pageSize = val;
+      this.getPage();
     },
-    // 对话框确定按钮
-    que() {
-      this.dialogFormVisible = false;
+    // 当前页码改变 函数
+    currentChange(val) {
+      const v = this;
+      // console.log(v.search.username,v.search.role);
+      if(v.search.username || v.search.role) {
+        if(v.search.username || v.search.role) {
+          accountSearch(v.search).then(rsdata => {
+          // v.tableData = Object.assign( {} , rsdata);
+          console.log(val);
+          let p = v.pages.pageSize;
+          v.tableData = rsdata.slice((val-1)*p,val*p);
+          rsdata;
+      })
+        }
+      } else {
+        v.pages.currentPage = val;
+        this.getPage();
+      }
     },
-    // 对话框取消按钮
-    qu() {
-      this.form.name = this.form2.name;
-      this.form.role = this.form2.power;
-      this.dialogFormVisible = false;
+    // 弹出框确认修改
+    goEdit() {
+      const v = this;
+      accountEdit(v.form).then(rsdata => {
+        if (rsdata.success) {
+          v.getList();
+        }
+        alert(rsdata.message);
+        v.dialogFormVisible = false;
+      });
     },
-    // close(index,row) {
-    //   this.dialogFormVisible = false;
-    // }
+    // 删除按钮函数
+    handleDelete(row) {
+      accountDel({ id: row.id }).then(rsdata => {
+        if (rsdata.success) {
+          this.getPage();
+        }
+        alert(rsdata.message);
+      });
+    }
   },
   created() {
-    // 保留指针
+    // this.getList();
     const v = this;
-    accountList().then( (rsdata) => {
+    accountPage(v.pages).then(rsdata => {
+      v.pages.total = rsdata.total;
       v.tableData = rsdata.data;
-      // v.tableData.forEach( (item) => {
-      //     if(item.role ===1 ) {
-      //       item.role = '超级管理员';
-      //       console.log(item);
-      //     } else {
-      //       item.role = '普通员工'
-      //     }
-      //   });
-    });
-    //普通引入发axios
-    // axios.get('http://127.0.0.1:666/account/list').then((response) => {
-    // this.tableData = response.data.map( (item) => {
-    //   if(item.role === 1) {
-    //      item.role = '超级管理员';
-    //      return item;
-    //   } else {
-    //     item.role = '普通员工';
-    //     return item;
-    //   }
-    // });
-    // console.log(this.tableData);
-    // response
-  // })
-  },
+    })
+  }
 };
 </script>
 
 <style lang="less" scoped>
 .account-list {
-  // 表格下面详细信息样式
-  .demo-table-expand {
-    font-size: 0;
+  // 卡片样式
+  .box-card {
+    width: 1200px;
+    padding: 10px 20px 0;
+    margin: 0 auto;
+  } //清除浮动
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
   }
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
+  .clearfix:after {
+    clear: both;
   }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
+  // 搜索按钮 
+  .search-btn {
+    width: 120px;
   }
-  // 分页的样式
-  .pages {
-    margin-top: 30px;
+  //分页 样式
+  .fen-page {
+    margin-top: 20px;
   }
-
-  
+  // 弹出框input宽度
+  .el-dialog-input {
+    width: 300px;
+  }
+  .el-dialog-form {
+    text-align: center;
+  }
+  .dialog-footer {
+    text-align: center;
+  }
 }
 </style>
