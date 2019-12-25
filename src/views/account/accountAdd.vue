@@ -58,7 +58,6 @@ import {accountAdd} from '@/api/account.js'
           role : '',
         },
         rules: {
-          
           username: [
             { required: true, message: '请输入用户姓名', trigger: 'blur' },
             { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'change' }
@@ -77,6 +76,7 @@ import {accountAdd} from '@/api/account.js'
       }
     },
     methods: {
+      // 确定提交按钮
       submit(formName) {
         const v = this;
         this.$refs[formName].validate( (valid) => {

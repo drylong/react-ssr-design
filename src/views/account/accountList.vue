@@ -10,7 +10,7 @@
       <!-- 搜索表单 -->
       <el-form :inline="true" :model="searchModel" class="demo-form-inline">
         <el-form-item label="搜索用户名：">
-          <el-input v-model="searchModel.username" placeholder="用户名"></el-input>
+          <el-input v-model="searchModel.username" placeholder="用户名" ></el-input>
         </el-form-item>
         <el-form-item label="搜索权限：">
           <el-select v-model="searchModel.role" placeholder="用户权限">
@@ -155,6 +155,8 @@ export default {
     onReset() {
       console.log(this.pages.pageSize,this.pages.currentPage);
       this.pages.currentPage = 1 ;
+      // const v = this;
+      this.getPage();
       this.search = {username:'' ,role: ''};
       this.searchModel = {username:'' ,role: ''};
     },
@@ -179,25 +181,39 @@ export default {
     //页内数量大小改变 函数
     sizeChange(val) {
       const v= this;
-      v.pages.pageSize = val;
-      this.getPage();
+      if(this.searchModel.username || this.searchModel.role ) {
+        if(this.search.username || this.search.role) {
+          accountSearch(v.search).then( rsdata => {
+            v.pages.pageSize = val;
+            v.pages.total = rsdata.length;
+            v.pages.currentPage = 1;
+            v.tableData = rsdata.slice(0,val);
+          })
+        }
+      } else {
+        console.log(val);
+        v.pages.pageSize = val;
+        this.getPage();
+      }
     },
     // 当前页码改变 函数
     currentChange(val) {
       const v = this;
-      // console.log(v.search.username,v.search.role);
       if(v.search.username || v.search.role) {
         if(v.search.username || v.search.role) {
           accountSearch(v.search).then(rsdata => {
-          // v.tableData = Object.assign( {} , rsdata);
-          console.log(val);
-          let p = v.pages.pageSize;
-          v.tableData = rsdata.slice((val-1)*p,val*p);
-          rsdata;
-      })
+            // v.tableData = Object.assign( {} , rsdata);
+            console.log(val);
+            v.pages.currentPage = val;
+            let p = v.pages.pageSize;
+            v.tableData = rsdata.slice((val-1)*p,val*p);
+            rsdata;
+          })
         }
       } else {
+        console.log(v.pages.currentPage);
         v.pages.currentPage = val;
+        console.log(val)
         this.getPage();
       }
     },
@@ -206,7 +222,7 @@ export default {
       const v = this;
       accountEdit(v.form).then(rsdata => {
         if (rsdata.success) {
-          v.getList();
+          v.getPage();
         }
         alert(rsdata.message);
         v.dialogFormVisible = false;
@@ -225,6 +241,7 @@ export default {
   created() {
     // this.getList();
     const v = this;
+    // 获取分页查询，用默认的数据
     accountPage(v.pages).then(rsdata => {
       v.pages.total = rsdata.total;
       v.tableData = rsdata.data;
@@ -267,5 +284,9 @@ export default {
   .dialog-footer {
     text-align: center;
   }
+  //   /deep/.el-input__inner {
+  //   border: 1px solid green;
+  // }
+  
 }
 </style>

@@ -1,6 +1,8 @@
 <template>
-  <div>
-商品管理
+  <div class="product-box">
+    <el-card class="box-card" header="商品列表" >
+      el-table
+    </el-card>
   </div>
 </template>
 
