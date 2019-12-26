@@ -5,7 +5,6 @@
       <div slot="header" class="clearfix">
         <span><i class="el-icon-s-custom"> </i>添加账户</span>
       </div>
-
     <!-- 表单  -->
       <el-form :model="tableData" label-position="left" label-width="100px" :rules="rules" ref="formName">
         <el-form-item label="账户名：" prop="username">

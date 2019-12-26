@@ -14,7 +14,7 @@
             <el-input v-model="loginFromRule.username"></el-input>
           </el-form-item>
           <el-form-item label="登录密码：" prop="password">
-            <el-input v-model="loginFromRule.password"></el-input>
+            <el-input v-model="loginFromRule.password" type="password"></el-input>
           </el-form-item>
           <el-form-item class="btn-fa">
             <el-button @click="submitForm('loginFrom')" class="login-btn">登 录</el-button>
@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import {login} from '@/api/login.js';
 export default {
   data() {
     return {
@@ -51,18 +52,50 @@ export default {
     };
   },
   methods: {
-    go() {
-      this.$router.push("/home");
+    // 成功消息弹框
+    successM(mag) {
+      const v = this;
+      v.$message({
+        message: mag,
+        type: "success",
+        center: true,
+        duration: 1000
+      });
     },
+    // 失败消息弹框
+    failM(mag) {
+      const v = this;
+      v.$message.error({
+        message: mag,
+        center: true,
+        duration: 1500
+      });
+    },
+    go() {
+      this.$router.replace("/home");
+    },
+    // 登录按钮
     submitForm(loginFrom) {
-          this.$refs[loginFrom].validate((valid) => {
-          if (valid) {
-            this.go();
-          } else {
-            alert('用户名或密码格式输入不正确!');
-          }
-        });
+      const v = this;
+      this.$refs[loginFrom].validate((valid) => {
+        if (valid) {
+          // this.go();
+          console.log(this.loginFromRule);
+          login(this.loginFromRule).then( rsdata => {
+            if(rsdata.success) {
+              localStorage.setItem('token',rsdata.token);
+              v.successM(rsdata.message);
+              v.go();
+              // localStorage.login = true // 登录状态
+            } else {
+              v.failM(rsdata.message);
+            }
+          })
+        } else {
+          alert('用户名或密码格式输入不正确!');
         }
+      });
+    }
   }
 };
 </script>

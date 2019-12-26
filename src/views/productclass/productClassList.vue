@@ -7,6 +7,16 @@
           <i class="el-icon-tickets"></i>商品分类列表
         </span>
       </div>
+      <!-- 搜索表单 -->
+      <el-form :inline="true" :model="pages" class="demo-form-inline">
+        <el-form-item label="搜索商品分类名：">
+          <el-input v-model="pages.name" placeholder="商品分类" ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSearch" class="search-btn" >查询  <i class="el-icon-search"></i></el-button>
+          <el-button type="primary" @click="onReset" class="search-btn" >重置  <i class="el-icon-refresh"></i></el-button>
+        </el-form-item>
+      </el-form>
       <!-- 表格 -->
       <el-table :data="tableData" height="450">
         <el-table-column prop="id" label="商品类编号" width="180"></el-table-column>
@@ -20,6 +30,18 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <el-pagination
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+        :current-page="pages.currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size='pages.pageSize'
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pages.total" 
+        class='fen-page'>
+      </el-pagination>
       <!-- 对话框 -->
       <el-dialog title="商品分类修改" :visible.sync="dialogFormVisible">
         <el-form :model="form" label-width="100px" :rules="rules" ref="form">
@@ -43,7 +65,7 @@
 </template>
 
 <script>
-import { productClassList, productClassEdit,productClassDel} from "@/api/productclass.js";
+import { productClassList, productClassEdit,productClassDel ,productClassPage} from "@/api/productclass.js";
 export default {
   data() {
     return {
@@ -64,11 +86,19 @@ export default {
         order: "",
         desc: ""
       },
+      // 验证表单
       rules:{
         name:[
           {required: true, message: '请输入用户姓名', trigger: 'blur'}
         ]
-      }
+      },
+      //  分页数据
+      pages: {
+        total: 0,
+        currentPage: 1,
+        pageSize: 5,
+        name: '',
+      },
     };
   },
   methods: {
@@ -78,6 +108,17 @@ export default {
       productClassList().then(rsdata => {
         v.tableData = rsdata;
       });
+    },
+    // 发送分页请求 基于当前值
+    getPage() {
+      const v = this;
+      productClassPage(this.pages).then(rsdata => {
+        if(rsdata) {
+          console.log(rsdata.total);
+          v.pages.total = rsdata.total;
+          v.tableData = rsdata.data;
+        }
+      })
     },
     // 成功消息弹框
     successM(mag) {
@@ -98,6 +139,16 @@ export default {
         center: true,
         duration: 1500
       });
+    },
+    // 搜索按钮
+    onSearch() {
+      console.log(this.pages);
+      this.getPage();
+    },
+    // 重置 按钮
+    onReset() {
+      this.pages.name = '';
+      this.getPage;
     },
     // 表格编辑按钮
     handEdit(row) {
@@ -145,10 +196,20 @@ export default {
     formCancel() {
       this.dialogFormVisible = false;
     },
+    // 页面数量大小改变
+    sizeChange (val) {
+      this.pages.pageSize = val;
+      this.getPage();
+    },
+    // 当前页码改变
+    currentChange (val) {
+      this.pages.currentPage = val;
+      this.getPage();
+    },
   },
   created() {
     // 获取列表函数
-    this.getList();
+    this.getPage();
   }
 };
 </script>
@@ -158,6 +219,14 @@ export default {
 .productclass-box {
   .el-dialog-input {
     width: 300px;
+  }
+  // 搜索按钮 
+  .search-btn {
+    width: 120px;
+  }
+  //分页 样式
+  .fen-page {
+    margin-top: 20px;
   }
 }
 </style>

@@ -254,7 +254,6 @@ export default {
 .account-list {
   // 卡片样式
   .box-card {
-    width: 1200px;
     padding: 10px 20px 0;
     margin: 0 auto;
   } //清除浮动

@@ -13,18 +13,26 @@ const routers = new Router( {   // 创建实例
   routes: [
     {
       path: '/',
-      redirect: '/home' //根目录
+      redirect: '/home', //根目录
+      meta: {
+        // 需要验证的标识
+        isReq: true
+      },
     },
     {
       path: '/login',
       name: 'login',
       component: login,         //登录页
-      
+      title:'登录页'
     },
     {
       path: '/home',
       name: 'home',
       component: home,          //管理系统首页
+      meta: {
+        // 需要验证的标识
+        isReq: true
+      },
       children: [
         {
           path: 'accountAdd',
@@ -83,8 +91,34 @@ const routers = new Router( {   // 创建实例
         },
       ]
     },
-    
   ]
 });
 
+// 路由拦截
+routers.beforeEach((to, from, next) => {
+  let isLog = localStorage.getItem('token');
+  let req = to.matched.some(item => item.meta.isReq);   //matched是个数组 里面是一个个路由项
+  if (!isLog && req) {
+    console.log(111);
+    next('/login');
+  } else {
+    next();
+  }
+});
+
+// routers.beforeEach((to, from, next) => {
+//   // 根据元数据上的requiresAuth标识，对需要验证的内容进行拦截
+//   if (to.meta.isReq) {
+//     // 如果登录成功，有token，那么可以放行
+//     const token = localStorage.getItem('token');
+//     if (token) { // 有token，则放行
+//       next();
+//     } else {
+//       // 如果未登录，没有有token，那么必须拦截
+//       next('/login');
+//     }
+//   } else {
+//     next()
+//   }
+// })
 export default routers;    //暴露实例
