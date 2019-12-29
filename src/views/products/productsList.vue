@@ -23,6 +23,15 @@
               <el-form-item label="单价：">{{props.row.price}}</el-form-item>
               <el-form-item label="包装费：">{{props.row.packingexpense}}</el-form-item>
               <el-form-item label="商品描述：">{{props.row.desc}}</el-form-item>
+              <el-form-item label="商品图片：">
+                <img
+                  :src="props.row.imgUrl | img"
+                  :alt="props.row.name"
+                  v-if="props.row.imgUrl"
+                  class="img"
+                />
+                <span v-else>暂无</span>
+              </el-form-item>
               <el-form-item label="录入时间：">{{props.row.inputtime}}</el-form-item>
             </el-form>
           </template>
@@ -46,23 +55,27 @@
         @current-change="currentChange"
         :current-page="pages.currentPage"
         :page-sizes="[5, 10, 15, 20]"
-        :page-size='pages.pageSize'
+        :page-size="pages.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="pages.total" 
-        class='fen-page'>
-      </el-pagination>
+        :total="pages.total"
+        class="fen-page"
+      ></el-pagination>
       <!-- 对话框 -->
       <el-dialog title="收货地址" :visible.sync="visible">
         <!-- 表单 -->
-        <el-form :model="diaForm" label-width="100px" >
+        <el-form :model="diaForm" label-width="100px">
           <el-form-item prop="name" label="商品名称">
             <el-input class="add-input" v-model="diaForm.name"></el-input>
           </el-form-item>
           <el-form-item prop="category" label="商品分类">
             <el-select v-model="diaForm.category" placeholder="请选择商品分类">
-              <!-- <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option> -->
-              <el-option v-for="val in categoryArr" :key="val.id" :label="val.name" :value='val.name'></el-option>
+              
+              <el-option
+                v-for="val in classForm"
+                :key="val.id"
+                :label="val"
+                :value="val"
+              ></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="特色">
@@ -85,6 +98,22 @@
           <el-form-item prop="price" label="单价">
             <el-input class="add-input" v-model="diaForm.price"></el-input>
           </el-form-item>
+          <el-form-item label="上传图片：">
+            <el-upload
+              class="avatar-uploader"
+              :action="updataQ"
+              :show-file-list="false"
+              :on-success="successed"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageUrl" :src="imageUrl" class="img" />
+              <i
+                v-else
+                class="el-icon-plus avatar-uploader-icon"
+                style="border: 1px dashed #409eff"
+              ></i>
+            </el-upload>
+          </el-form-item>
           <el-form-item prop="desc" label="商品描述">
             <el-input type="textarea" class="add-input" :rows="3" v-model="diaForm.desc"></el-input>
           </el-form-item>
@@ -99,7 +128,9 @@
 </template>
 
 <script>
-import { productList ,productEdit ,productDel} from "@/api/products.js";
+import {  productList,  productEdit,  productDel, updataQ, updataS} from "@/api/products.js";
+import { productClassList} from "@/api/productclass.js";
+
 export default {
   data() {
     return {
@@ -114,7 +145,8 @@ export default {
           price: "",
           packingexpense: "",
           desc: "",
-          inputtime: ""
+          inputtime: "",
+          imgUrl: ''
         }
       ],
       // 对话框
@@ -126,19 +158,27 @@ export default {
         isPromotion: "",
         price: "",
         packingexpense: "",
-        desc: ""
+        desc: "",
+        imgUrl: ""
       },
+      categoryArr:[],
+          // 商品分类
+      classForm: [],
       //  分页数据
       pages: {
         total: 5,
         currentPage: 1,
         pageSize: 5,
-        username: '',
-        role: '',
+        username: "",
+        role: ""
       },
+      // 回显地址 加 上传
+      updataS: updataS,
+      updataQ: updataQ,
     };
   },
   methods: {
+    sizeChange() {},currentChange() {},
     // 获取列表请求
     getList() {
       const v = this;
@@ -147,9 +187,16 @@ export default {
         v.categoryArr = rsdata;
       });
     },
-    // 发分页请求 基于当前页
-    getPage() {
+    //获取分类列表
+    getClassList() {
+      const v = this;
+      productClassList().then(rsdata => {
+        let s = new Set(rsdata.map( item => item.name));
+        v.classForm = [...s];
+      });
     },
+    // 发分页请求 基于当前页
+    getPage() {},
     // 成功消息弹框
     successM(mag) {
       const v = this;
@@ -174,22 +221,22 @@ export default {
       this.visible = true;
       // this.diaForm = Object.assign({},row);
       // this.diaForm.feature = JSON.parse(this.diaForm.feature);
-      const feature = JSON.parse(row.feature)
+      const feature = JSON.parse(row.feature);
 
-      this.diaForm = Object.assign({},row,{feature})
+      this.diaForm = Object.assign({}, row, { feature });
     },
     // 删除按钮
     handDel(row) {
       const v = this;
       let { id } = row;
-      productDel({id}).then( rsdata => {
-        if(rsdata.success) {
+      productDel({ id }).then(rsdata => {
+        if (rsdata.success) {
           v.successM(rsdata.message);
           v.getList();
         } else {
           v.failM(rsdata.message);
         }
-      })
+      });
     },
     // 对话框取消按钮
     diaCancel() {
@@ -199,28 +246,62 @@ export default {
     diaDefine() {
       const v = this;
       this.diaForm.feature = JSON.stringify(this.diaForm.feature);
-      productEdit(this.diaForm).then( rsdata => {
-        if( rsdata.success) {
+      productEdit(this.diaForm).then(rsdata => {
+        if (rsdata.success) {
           v.successM(rsdata.message);
           v.getList();
         } else {
           v.failM(rsdata.message);
         }
-      })
-      console.log(v.diaForm);
+      });
       this.visible = false;
+    },
+    // 图片上传
+    successed(res) {
+      this.diaForm.imgUrl = res.fileName;
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
     }
   },
   //过滤器
   filters: {
     fa(value) {
       if (value) {
-        return JSON.parse(value).join();
+        if (JSON.parse(value).length) {
+          return "暂无";
+        } else {
+          return JSON.parse(value).join();
+        }
       }
+    },
+    img(val) {
+      return updataS + val;
+    }
+  },
+  // 计算属性
+  computed: {
+    imageUrl() {
+      if(this.diaForm.imgUrl) {
+        return updataS + this.diaForm.imgUrl;
+      } else {
+         return 0;
+      }
+     
     }
   },
   created() {
+    this.getClassList();
     this.getList();
+
   }
 };
 </script>
@@ -253,6 +334,20 @@ export default {
   // 表单
   .add-input {
     width: 300px;
+  }
+  // 图片大小
+  .img {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
   }
 }
 </style>

@@ -128,6 +128,7 @@ export default {
       accountList().then(rsdata => {
         v.tableData = rsdata;
       });
+     
     },
     //分页发请求函数
     getPage() {
@@ -240,6 +241,8 @@ export default {
   },
   created() {
     // this.getList();
+     console.dir(this.$router);
+     console.dir(this.$route);
     const v = this;
     // 获取分页查询，用默认的数据
     accountPage(v.pages).then(rsdata => {

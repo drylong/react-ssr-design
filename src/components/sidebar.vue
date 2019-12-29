@@ -16,43 +16,7 @@
      <!-- @open="handleOpen" -->
       <!-- @close="handleClose" -->
       <el-menu-item>红旗超市管理系统</el-menu-item>
-      <!-- <el-submenu index="1">
-        <template slot="title">
-          <i class="el-icon-setting"></i>商品分类管理
-        </template>
-        <el-menu-item index="1-1">商品分类列表</el-menu-item>
-        <el-menu-item index="1-2">添加商品分类</el-menu-item>
-      </el-submenu>
-      <el-submenu index="2">
-        <template slot="title">
-          <i class="el-icon-message"></i>商品管理
-        </template>
-        <el-menu-item index="2-1">商品列表</el-menu-item>
-        <el-menu-item index="2-2">添加商品</el-menu-item>
-      </el-submenu>
-      <el-submenu index="3">
-        <template slot="title">
-          <i class="el-icon-menu"></i>账号管理
-        </template>
-        <el-menu-item index="3-1">账号列表</el-menu-item>
-        <el-menu-item index="3-2">添加账号</el-menu-item>
-        <el-menu-item index="3-3">修改密码</el-menu-item>
-      </el-submenu>
-      <el-submenu index="4">
-        <template slot="title">
-          <i class="el-icon-setting"></i>统计管理
-        </template>
-        <el-menu-item index="4-1">选项1</el-menu-item>
-        <el-menu-item index="4-2">选项2</el-menu-item>
-      </el-submenu>
-      <el-submenu index="5">
-        <template slot="title">
-          <i class="el-icon-setting"></i>菜单管理
-        </template>
-        <el-menu-item index="5-1">选项1</el-menu-item>
-        <el-menu-item index="5-2">选项2</el-menu-item>
-      </el-submenu> -->
-      <!-- 动态数据渲染 加在 template上 -->
+      
       <template v-for='value in menulist'>
         <!-- 没有子集 -->
         <el-menu-item v-if='!value.children' :index='value.index'  :key='value.id'>
@@ -74,6 +38,7 @@
 </template>
 
 <script>
+import { getUserRole } from '@/api/'
 export default {
   data() {
     return {
@@ -87,7 +52,8 @@ export default {
           children: [
             { index: "/home/productClassList", name: "商品分类列表" },
             { index: "/home/productClassAdd", name: "添加商品分类" }
-          ]
+          ],
+          role:[1,2]
         },
         {
           id: 2,
@@ -97,7 +63,8 @@ export default {
           children: [
             { index: "/home/productsList", name: "商品管理" },
             { index: "/home/productsAdd", name: "添加管理" }
-          ]
+          ],
+          role:[1,2]
         },
         {
           id: 3,
@@ -108,7 +75,8 @@ export default {
             { index: "/home/accountList", name: "账号列表" },
             { index: "/home/accountAdd", name: "增加账号" },
             { index: "/home/changePwd", name: "修改密码" }
-          ]
+          ],
+          role:[1]
         },
         {
           id: 4,
@@ -118,7 +86,8 @@ export default {
           children: [
             { index: "/home/sta", name: "销售统计" },
             { index: "/home/stocksta", name: "进货统计" }
-          ]
+          ],
+          role:[1]
         },
         {
           id: 5,
@@ -128,18 +97,28 @@ export default {
           children: [
             { index: "/home/menulist", name: "菜单管理" },
             { index: "/home/menuadd", name: "添加菜单" }
-          ]
+          ],
+          role:[1]
         }
-      ]
+      ],
+      menulists:[]
     };
   },
   methods: {
-    // handleOpen(key, keyPath) {
-    //   // console.log(key, keyPath);
-    // },
-    // handleClose(key, keyPath) {
-    //   // console.log(key, keyPath,this.$router.path);
-    // }
+
+  },
+  created() {
+    const token = localStorage.getItem('token');
+    const v = this;
+    getUserRole({token}).then( rsdata => {
+      const roleItem = rsdata.role;
+      v.menulist = v.menulist.filter( item => {
+        if (item.role.includes(roleItem)) {
+          return item;
+        } 
+      });
+      
+    })
   }
 };
 </script>
