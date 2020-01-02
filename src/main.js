@@ -12,6 +12,10 @@ import 'normalize.css';
 // 引入全局样式
 import '@/assets/style/css/common.css';
 
+// 全局bus路由
+let bus = new Vue();
+Vue.prototype.bus = bus;
+
 // 全局注册
 Vue.use(Element);
 

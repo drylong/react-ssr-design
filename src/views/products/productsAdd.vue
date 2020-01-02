@@ -205,7 +205,7 @@ export default {
   //   position: relative;
   //   overflow: hidden;
   // }
-  
+  // 图片
   .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;

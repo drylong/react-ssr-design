@@ -24,16 +24,29 @@
 
 <script>
 import { loginOut } from '@/api/login.js';
-import tou from '@/assets/images/me.jpg';
+import toux from '@/assets/images/me.jpg';
+import {personalInfo} from '@/api/'
+import {uploadAdress} from '@/api/'
 
 export default {
   data() {
     return {
       // 头像
-      circleUrl: tou,
+      tou: {
+         circleUrl: '',
+      }
     };
   },
   methods: {
+    // 获取用户信息
+    getInfo() {
+      const token = localStorage.getItem('token');
+      console.log(this.tou.circleUrl);
+      personalInfo({token}).then(rsdata => {
+        this.tou.circleUrl = rsdata.accountInfo.avatar;
+      })
+    },
+
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -47,6 +60,29 @@ export default {
              this.$router.replace('/login');
            }
         })
+         // 个人中心
+      } else if ( command === 'ge'){
+        this.$router.push('/home/personal');
+      }
+    },
+    // 个人中心
+    ge() {
+      this.$router.push('/personal');
+    },
+    
+  },
+  created() {
+    this.getInfo();
+    this.bus.$on('editAvatar',(a) => {
+      this.tou.circleUrl = a;
+    });
+  },
+  computed: {
+    circleUrl() {
+      if(this.tou.circleUrl) {
+        return uploadAdress+ this.tou.circleUrl;
+      } else {
+        return toux;
       }
     }
   }

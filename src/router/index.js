@@ -89,8 +89,14 @@ const routers = new Router( {   // 创建实例
           name: 'stocksta',
           component: () => import( '@/views/statistics/stocksta.vue'),
         },
+        {
+          path: 'personal',
+          name: 'personal',
+          component: () => import('@/views/personal.vue'),
+        },
       ]
     },
+
   ]
 });
 
